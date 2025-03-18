@@ -2,26 +2,36 @@ import { useState } from 'react'
 import "./Login.css"
 import {useNavigate} from "react-router-dom";
 import {useAuthContext} from "../../context/authContext/authContext.ts";
-import {createRequest} from "../../api/createRequest.ts";
+import {ServerError} from "../../api/createRequest.ts";
 
 export const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [error, setError] = useState('');
+
     const navigate = useNavigate()
     const { authClient } = useAuthContext()
 
-    const backendUrlPrefix = import.meta.env.VITE_BACKEND_URL
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        try {
+            setError('');
 
-        const res2 = await authClient.login({
-            email: email,
-            password: password,
-        });
-        console.log('res2: ', res2);
+            const res2 = await authClient.login({
+                email: email,
+                password: password,
+            });
+            console.log('res2: ', res2);
 
-        navigate('/');
+            navigate('/');
+        } catch (error) {
+            if (error.code === 400) {
+                setError('Неверный логин или пароль');
+            } else {
+                setError(error.message);
+            }
+        }
     };
 
 
@@ -56,6 +66,7 @@ export const Login = () => {
                         className="login-input"
                         autoComplete="current-password"
                     />
+                    {error && <div className="register-error-message">{error}</div>}
                 </div>
                 <button type="submit" className="login-button">Войти</button>
                 <button type="button" onClick={() => navigate(`/register`)} className="login-button-to-register">Зарегистрироваться</button>

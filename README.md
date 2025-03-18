@@ -36,4 +36,7 @@ make env
 ```
 docker-compose up --build
 ```
-
+Для очистки данных в базе:
+```
+docker-compose down -v
+```

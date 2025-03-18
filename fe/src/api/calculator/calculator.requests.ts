@@ -1,17 +1,17 @@
 import { createRequest } from '../createRequest'
-import {HistoryInput, HistoryOutput, ExpressionOutput, AddNewExpressionInput} from "./calculator.types.ts";
+import {HistoryInput, ExpressionOutput, AddNewExpressionInput, HistoryItem} from "./calculator.types.ts";
 
 const backendUrlPrefix = import.meta.env.VITE_BACKEND_URL
 
-export async function getHistory(data: HistoryInput): Promise<HistoryOutput> {
-    return createRequest<HistoryOutput>({
-        url: `${backendUrlPrefix}/api/calculator/history?idUser=${data.idUser}`,
+export async function getHistory(data: HistoryInput): Promise<HistoryItem[]> {
+    return createRequest<HistoryItem[]>({
+        url: `${backendUrlPrefix}/api/calculator/history/${data.userId}`,
         isProtectRequest: true,
     })
 }
 
-export async function addNewExpressionToHistory(data: AddNewExpressionInput): Promise<void> {
-    return createRequest<void>({
+export async function addNewExpressionToHistory(data: AddNewExpressionInput): Promise<HistoryItem> {
+    return createRequest<HistoryItem>({
         url: `${backendUrlPrefix}/api/calculator/history`,
         isProtectRequest: true,
         method: "POST",
@@ -21,7 +21,7 @@ export async function addNewExpressionToHistory(data: AddNewExpressionInput): Pr
 
 export async function getExpression(data: HistoryInput): Promise<ExpressionOutput> {
     return createRequest<ExpressionOutput>({
-        url: `${backendUrlPrefix}/api/calculator/expression?idUser=${data.idUser}`,
+        url: `${backendUrlPrefix}/api/calculator/expression/${data.userId}`,
         isProtectRequest: true,
     })
 }

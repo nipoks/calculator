@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react"
 import "./Calculator.css"
+
 import {useAuthContext} from "../../context/authContext/authContext.ts";
 import {useNavigate} from "react-router-dom";
 import {
@@ -8,6 +9,7 @@ import {
     getHistory,
     updateCurUserExpression
 } from "../../api/calculator/calculator.requests.ts";
+import {HistoryItem} from "../../api/calculator/calculator.types.ts";
 
 const buttons = [
     ["ms", "mr", "mc", "m-"],
@@ -20,28 +22,37 @@ const buttons = [
 
 export const Calculator = () => {
     const [expression, setExpression] = useState("0")
-    const [history, setHistory] = useState([])
+    const [historyExpression, setHistoryExpression] = useState<HistoryItem[] | undefined>(undefined)
     const [memoryNumber, setMemoryNumber] = useState<number | undefined>(undefined)
     const [accuracyCalc] = useState(6)
-    const { authState } = useAuthContext()
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const { authState, authClient } = useAuthContext()
     const navigate = useNavigate()
 
     useEffect(() => {
         const fetchHistory = async () => {
             if (!authState || !authState.id) {
-                navigate('/login');
+                navigate('/login')
+                return
             }
             const resHistory = await getHistory({
-                idUser: authState!.id,
+                userId: authState!.id,
             })
             console.log(resHistory)
-            //setHistory(resHistory)
+
+            if (resHistory) {
+                setHistoryExpression(resHistory);
+            } else {
+                console.log("No history found or wrong format");
+            }
+            setIsLoading(false)
 
             const resExpression = await getExpression({
-                idUser: authState!.id,
+                userId: authState!.id,
             })
             console.log(resExpression)
             //setExpression(resExpression)
+            setIsLoading(false)
         }
 
         const fetchData = async () => {
@@ -49,11 +60,11 @@ export const Calculator = () => {
                 navigate('/login');
             }
             const response = await updateCurUserExpression({
-                idUser: authState!.id,
+                userId: authState!.id,
                 expression: expression,
             })
             console.log("Ответ с бэка:", response);
-        }; 
+        };
 
         fetchHistory();
         const interval = setInterval(fetchData, 1000);
@@ -117,17 +128,20 @@ export const Calculator = () => {
                     resultWithFourDecimalPlaces = parseFloat(result.toFixed(accuracyCalc))
                 }
                 const newEntry = `${expression} = ${resultWithFourDecimalPlaces}`
-                setHistory([newEntry, ...history])
-                setExpression(resultWithFourDecimalPlaces.toString())
-
                 try {
-                    await addNewExpressionToHistory({
-                        idUser: authState!.id,
+                    const res = await addNewExpressionToHistory({
+                        userId: authState!.id,
                         expression: newEntry,
                     })
+                    console.log("New record added:", res)
+
+                    setHistoryExpression(prevState => prevState ? [res, ...prevState] : [res])
                 } catch (err) {
                     console.log(err)
                 }
+
+                setExpression(resultWithFourDecimalPlaces.toString())
+
 
             } catch (error) {
                 console.error(error)
@@ -140,6 +154,8 @@ export const Calculator = () => {
         } else if (value === "mr") {
             if (memoryNumber !== undefined) {
                 setExpression(memoryNumber.toString())
+            } else {
+                setExpression("0")
             }
         } else if (value === "mc") {
             setMemoryNumber(undefined)
@@ -155,14 +171,24 @@ export const Calculator = () => {
         }
     }
 
+    const handlerLogout = () => {
+        authClient.logout()
+        navigate(`/login`)
+    }
+
+    if (isLoading) {
+        return <></>
+    }
+
     return (
         <>
+            <button className={'calculator-button-to-exit'} onClick={handlerLogout}>Выйти</button>
             <div className="calculator">
-                {history.length > 0 && (
+                {historyExpression && historyExpression.length > 0 && (
                     <div className="history-container">
-                        {history.map((item, index) => (
-                            <div key={index} className="history-item">
-                                {item}
+                        {historyExpression.map((item) => (
+                            <div key={item.id} className="history-item">
+                                {item.expression}
                             </div>
                         ))}
                     </div>
@@ -172,7 +198,7 @@ export const Calculator = () => {
                     {buttons.flat().map((btn, index) => (
                         <div key={index}>
                             <button
-                                className={`${
+                                className={`button button-${
                                     ["C", "CE", "+/-"].includes(btn)
                                         ? "clear"
                                         : ["÷", "x", "-", "+", "="].includes(btn)

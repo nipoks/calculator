@@ -81,7 +81,6 @@ const useAuthContext = (): { authClient: AuthClient; authState?: AuthState } => 
         isAccessTokenExpired: () => {
             if (!state?.accessToken) return false
             const expiresIn = jwtDecode(state.accessToken).exp
-            console.log(expiresIn)
             return expiresIn === undefined || expiresIn * 1000 < Date.now()
         },
     }

@@ -1,9 +1,11 @@
 export type HistoryInput = {
-    idUser: string
+    userId: string
 }
 
-export type HistoryOutput = {
-    history: string[]
+export type HistoryItem = {
+    expression: string
+    id: string
+    date: string
 }
 
 export type ExpressionOutput = {
@@ -11,6 +13,6 @@ export type ExpressionOutput = {
 }
 
 export type AddNewExpressionInput = {
-    idUser: string
+    userId: string
     expression: string
 }

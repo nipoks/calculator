@@ -69,3 +69,7 @@
     cursor: pointer;
     transition: background-color 0.3s;
 }
+
+.login-error-message {
+    color: #bb1b1b;
+}
