@@ -21,12 +21,18 @@ cd ./calculator
 ```
 cd ./fe
 npm install
+make env 
 cd ..
+
 cd ./be
 npm install
+make env
 ```
-3. Запустить проект из корневой папки с помощью Docker Compose:
+### Необходимо задать значения переменных в env файлах
+### Для fe
+### Для be
 
+3. Запустить проект из корневой папки с помощью Docker Compose:
 ```
 docker-compose up --build
 ```

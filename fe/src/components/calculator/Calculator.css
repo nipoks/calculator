@@ -1,0 +1,118 @@
+.calculator {
+    width: 100%;
+    min-width: 300px;
+    max-width: 400px;
+    background: #000;
+    color: #fff;
+    padding: 13px;
+    box-sizing: border-box;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    user-select: none;
+}
+
+.history-container {
+    max-height: 100px;
+    max-width: 400px;
+    overflow-y: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+
+    text-align: right;
+    color: #a5a5a5;
+    padding-bottom: 5px;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    opacity: 0.8;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #444;
+}
+
+.history-item {
+    font-size: 13px;
+    padding: 3px;
+}
+
+.history-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-container::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 3px;
+}
+
+.display {
+    max-width: 400px;
+
+    text-align: right;
+    font-size: clamp(30px, 5vw, 40px);
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    white-space: nowrap;
+    overflow-x: scroll;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+.display::-webkit-scrollbar {
+    height: 6px;
+}
+
+.display::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 3px;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+}
+
+button {
+    border: none;
+    font-size: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+}
+
+
+button.number {
+    background-color: #333;
+    color: #fff;
+}
+
+button.number:hover {
+    background-color: #555;
+}
+
+button.operator {
+    background-color: #ff9500;
+    color: #fff;
+}
+
+button.operator:hover {
+    background-color: #ffa23a;
+}
+
+button.clear {
+    background-color: #a5a5a5;
+    color: #000;
+}
+
+button.clear:hover {
+    background-color: #b5b5b5;
+}
+
+button:active {
+    transform: scale(0.93);
+}
+
+.legend-container {
+    color: #9d9d9d;
+    max-width: 500px;
+    font-size: 12px;
+}
