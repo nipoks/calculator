@@ -2,11 +2,11 @@ import {ExpressionHistoryDTO} from "../types/calculator.types";
 import {IHistoryExpression} from "../models/HistoryExpression";
 
 export const mapUsersToUsersDTO = (arrUsers: IHistoryExpression[]):ExpressionHistoryDTO[] => {
-    return arrUsers.map((expression: IHistoryExpression) => {
+    return arrUsers.map((exp: IHistoryExpression) => {
         return {
-            expression: expression.expression,
-            id: expression._id.toString(),
-            date: expression.date,
+            expression: exp.expression,
+            id: exp._id.toString(),
+            date: exp.date,
         }
     })
 }

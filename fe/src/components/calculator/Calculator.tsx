@@ -38,136 +38,159 @@ export const Calculator = () => {
             const resHistory = await getHistory({
                 userId: authState!.id,
             })
-            console.log(resHistory)
 
             if (resHistory) {
                 setHistoryExpression(resHistory);
             } else {
                 console.log("No history found or wrong format");
             }
-            setIsLoading(false)
 
             const resExpression = await getExpression({
                 userId: authState!.id,
             })
             console.log(resExpression)
-            //setExpression(resExpression)
+            if (resExpression) {
+                setExpression(resExpression)
+            }
             setIsLoading(false)
         }
-
-        const fetchData = async () => {
-            if (!authState || !authState.id) {
-                navigate('/login');
-            }
-            const response = await updateCurUserExpression({
-                userId: authState!.id,
-                expression: expression,
-            })
-            console.log("Ответ с бэка:", response);
-        };
-
-        fetchHistory();
-        const interval = setInterval(fetchData, 1000);
-
-        return () => clearInterval(interval);
+        fetchHistory()
     }, [])
 
-
-
-    const handleButtonClick = async (value: string) => {
-        console.log(expression, value)
-
-        if (expression === "Error") {
-            if (value !== "=") {
-                if (!isNaN(Number(value))) {
-                    setExpression(value === "=" ? "Error" : value)
-                }
-                if (value === "C") {
-                    setExpression("0")
-                }
-            }
-            return
-        }
-
-        if (!isNaN(Number(value))) {
-            setExpression(expression === "0" ? value : expression + value)
-        } else if (value === "C") {
-            setExpression("0")
-        } else if (value === "CE") {
-            setExpression(expression.slice(0, -1) || "0")
-        } else if (value === "+/-" && !isNaN(Number(expression)) && expression !== "0") {
-            setExpression(
-                expression.startsWith("-")
-                    ? expression.slice(1)
-                    : `-${expression}`
-            )
-        } else if (value === ".") {
-            if (
-                !["+", "-", "x", "÷", "."].includes(expression.slice(-1))
-            ) {
-                setExpression(expression + `${value}`)
-            }
-        } else if (["+", "-", "x", "÷"].includes(value)) {
-            if (
-                !["+", "-", "x", "÷"].includes(expression.slice(-1)) &&
-                expression !== "0"
-            ) {
-                setExpression(expression + `${value}`)
-            } else if (["+", "-", "x", "÷"].includes(expression.slice(-1))) {
-                setExpression(expression.slice(0, -1) + `${value}`)
-            }
-
-        } else if (value === "=") {
+    useEffect(() => {
+        const fetchData = async () => {
             try {
-                const finalExpression = expression
-                    .replace(/x/g, "*")
-                    .replace(/÷/g, "/")
-                const result = eval(finalExpression)
-                let resultWithFourDecimalPlaces = result
-                if (result % 1 !== 0) {
-                    resultWithFourDecimalPlaces = parseFloat(result.toFixed(accuracyCalc))
-                }
-                const newEntry = `${expression} = ${resultWithFourDecimalPlaces}`
-                try {
-                    const res = await addNewExpressionToHistory({
-                        userId: authState!.id,
-                        expression: newEntry,
-                    })
-                    console.log("New record added:", res)
-
-                    setHistoryExpression(prevState => prevState ? [res, ...prevState] : [res])
-                } catch (err) {
-                    console.log(err)
-                }
-
-                setExpression(resultWithFourDecimalPlaces.toString())
-
-
+                await updateCurUserExpression({
+                    userId: authState!.id,
+                    expression: expression,
+                })
             } catch (error) {
-                console.error(error)
-                setExpression("Error")
+                console.error(`Ошибка обновления текущего выражения: ${error}`)
             }
-        } else if (value === "ms") {
+        }
+        if (isLoading) return
+        fetchData()
+    }, [expression]);
+
+    const handlerValueIsNumber = (value: string) => {
+        if (expression.length > 2 && expression.slice(-1) === "0" && ["+", "-", "x", "÷"].includes(expression.slice(-2, -1))) {
+            setExpression(expression.slice(0, -1) + value)
+        } else {
+            setExpression(expression === "0" ? value : expression + value)
+        }
+    }
+
+    const handlerValueIsChangeSign = () => {
+        setExpression(
+            expression.startsWith("-")
+                ? expression.slice(1)
+                : `-${expression}`
+        )
+    }
+
+    const handlerValueIsPoint = () => {
+        if (
+            !["+", "-", "x", "÷", "."].includes(expression.slice(-1))
+        ) {
+            setExpression(expression + ".")
+        }
+    }
+
+    const handlerValueIsArithmeticOperation = (value: string) => {
+        if (
+            !["+", "-", "x", "÷"].includes(expression.slice(-1)) &&
+            expression !== "0"
+        ) {
+            setExpression(expression + `${value}`)
+        } else if (["+", "-", "x", "÷"].includes(expression.slice(-1))) {
+            setExpression(expression.slice(0, -1) + `${value}`)
+        }
+    }
+
+    const handlerValueIsEqualSign = async () => {
+        try {
+            const finalExpression = expression
+                .replace(/x/g, "*")
+                .replace(/÷/g, "/")
+            const result = eval(finalExpression)
+            let resultWithFourDecimalPlaces = result
+            if (result % 1 !== 0) {
+                resultWithFourDecimalPlaces = parseFloat(result.toFixed(accuracyCalc))
+            }
+            if (resultWithFourDecimalPlaces.toString() === "Infinity") {
+                resultWithFourDecimalPlaces = "DivisionByZero"
+            }
+            console.log(resultWithFourDecimalPlaces)
+            const newEntry = `${expression} = ${resultWithFourDecimalPlaces}`
+            try {
+                const res = await addNewExpressionToHistory({
+                    userId: authState!.id,
+                    expression: newEntry,
+                })
+                console.log("New record added:", res)
+
+                setHistoryExpression(prevState => prevState ? [res, ...prevState] : [res])
+            } catch (err) {
+                console.log(err)
+            }
+            setExpression(resultWithFourDecimalPlaces.toString())
+
+        } catch (error) {
+            console.error(error)
+            setExpression("Error")
+        }
+    }
+
+    const handlerExpressionIsErrorOrDBZ = (value: string) => {
+        if (value !== "=") {
+            if (!isNaN(Number(value))) {
+                setExpression(value)
+            }
+            if (value === "C") {
+                setExpression("0")
+            }
+        }
+        return
+    }
+
+    const memoryActions:{ [key: string]: () => void } = {
+        "ms": () => {
             if (!isNaN(Number(expression))) {
                 setMemoryNumber(Number(expression))
             }
-        } else if (value === "mr") {
-            if (memoryNumber !== undefined) {
-                setExpression(memoryNumber.toString())
-            } else {
-                setExpression("0")
-            }
-        } else if (value === "mc") {
-            setMemoryNumber(undefined)
-
-        } else if (value === "m-") {
-            if (!isNaN(Number(expression)) && memoryNumber) {
+        },
+        "mr": () => setExpression(memoryNumber !== undefined ? memoryNumber.toString() : "0"),
+        "mc": () => setMemoryNumber(undefined),
+        "m-": () => {
+            if (!isNaN(Number(expression)) && memoryNumber !== undefined) {
                 setMemoryNumber(prevState => prevState! - Number(expression))
             }
-        } else if (value === "m+") {
-            if (!isNaN(Number(expression)) && memoryNumber) {
+        },
+        "m+": () => {
+            if (!isNaN(Number(expression)) && memoryNumber !== undefined) {
                 setMemoryNumber(prevState => prevState! + Number(expression))
             }
+        },
+        "C": () => setExpression("0"),
+        "CE": () => setExpression(expression.slice(0, -1) || "0"),
+        ".": () => handlerValueIsPoint(),
+        "=": async () => await handlerValueIsEqualSign(),
+
+    }
+
+    const handleButtonClick = async (value: string) => {
+        if (expression === "Error" || expression === "DivisionByZero") {
+            handlerExpressionIsErrorOrDBZ(value)
+        }
+
+        if (!isNaN(Number(value))) {
+            handlerValueIsNumber(value)
+        } else if (value === "+/-" && !isNaN(Number(expression)) && expression !== "0") {
+            handlerValueIsChangeSign()
+        } else if (["+", "-", "x", "÷"].includes(value)) {
+            handlerValueIsArithmeticOperation(value)
+        } else {
+            memoryActions[value]()
         }
     }
 

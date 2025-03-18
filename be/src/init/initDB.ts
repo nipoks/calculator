@@ -1,27 +1,35 @@
-import User, {IUser} from "../models/User";
-import bcrypt from "bcryptjs";
-import HistoryExpression from "../models/HistoryExpression";
+import User, {IUser} from "../models/User"
+import bcrypt from "bcryptjs"
+import HistoryExpression from "../models/HistoryExpression"
 
 export const initUsers = async ():Promise<IUser[]> => {
     const users = [
-        { email: "first@example.com", password: "12" },
-        { email: "second@example.com", password: "13" }
-    ];
+        { email: "first@example.com", password: "12", curExpression: "65+10-5", memoryNumber: "10" },
+        { email: "second@example.com", password: "13", curExpression: "0", memoryNumber: undefined }
+    ]
 
     const hashedUsers = await Promise.all(
         users.map(async (user) => ({
             ...user,
             password: await bcrypt.hash(user.password, 10)
         }))
-    );
+    )
 
-    return await User.insertMany(hashedUsers);
+    try {
+        return await User.insertMany(hashedUsers)
+    } catch (error) {
+        console.log("Ошибка при добавлении пользоватлей в базу:", error)
+        return []
+    }
 }
 
 export const initHistoryExpression = async (users:IUser[]) => {
 
     let currentDate = new Date()
-
+    if (users.length < 1) {
+        console.log("Нету пользоватлей для добавления истории в базу")
+        return
+    }
     const historyData = [
         {
             userId: users[0]._id,
@@ -59,10 +67,12 @@ export const initHistoryExpression = async (users:IUser[]) => {
             date: new Date(currentDate.getTime() + 5000),
         },
     ]
-
-    await HistoryExpression.insertMany(historyData);
-
-    console.log("История вычислений добавлена");
+    try {
+        await HistoryExpression.insertMany(historyData)
+        console.log("История вычислений добавлена")
+    } catch (error) {
+        console.log("Ошибка при добавлении истории в базу:", error)
+    }
 }
 
 export const initDatabase = async () => {
@@ -71,8 +81,8 @@ export const initDatabase = async () => {
         const savedUsers = await initUsers()
         await initHistoryExpression(savedUsers)
 
-        console.log("Данные добавлены");
+        console.log("Данные добавлены")
     } catch (error) {
-        console.error("Ошибка при инициализации базы:", error);
+        console.log("Ошибка при инициализации базы:", error)
     }
-};
+}

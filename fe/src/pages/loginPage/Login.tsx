@@ -2,7 +2,6 @@ import { useState } from 'react'
 import "./Login.css"
 import {useNavigate} from "react-router-dom";
 import {useAuthContext} from "../../context/authContext/authContext.ts";
-import {ServerError} from "../../api/createRequest.ts";
 
 export const Login = () => {
     const [email, setEmail] = useState('')
@@ -11,7 +10,6 @@ export const Login = () => {
 
     const navigate = useNavigate()
     const { authClient } = useAuthContext()
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();

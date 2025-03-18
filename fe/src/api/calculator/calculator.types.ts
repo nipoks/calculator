@@ -8,10 +8,6 @@ export type HistoryItem = {
     date: string
 }
 
-export type ExpressionOutput = {
-    expression: string
-}
-
 export type AddNewExpressionInput = {
     userId: string
     expression: string

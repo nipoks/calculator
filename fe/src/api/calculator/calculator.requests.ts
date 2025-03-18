@@ -1,5 +1,5 @@
 import { createRequest } from '../createRequest'
-import {HistoryInput, ExpressionOutput, AddNewExpressionInput, HistoryItem} from "./calculator.types.ts";
+import {HistoryInput, AddNewExpressionInput, HistoryItem} from "./calculator.types.ts";
 
 const backendUrlPrefix = import.meta.env.VITE_BACKEND_URL
 
@@ -19,8 +19,8 @@ export async function addNewExpressionToHistory(data: AddNewExpressionInput): Pr
     })
 }
 
-export async function getExpression(data: HistoryInput): Promise<ExpressionOutput> {
-    return createRequest<ExpressionOutput>({
+export async function getExpression(data: HistoryInput): Promise<string> {
+    return createRequest<string>({
         url: `${backendUrlPrefix}/api/calculator/expression/${data.userId}`,
         isProtectRequest: true,
     })

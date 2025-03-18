@@ -40,3 +40,9 @@ docker-compose up --build
 ```
 docker-compose down -v
 ```
+4. Пользователи:
+```
+email: first@example.com, password: 12 
+
+email: second@example.com, password: 13
+```
