@@ -2,6 +2,7 @@ import { useState } from 'react'
 import "./Login.css"
 import {useNavigate} from "react-router-dom";
 import {useAuthContext} from "../../context/authContext/authContext.ts";
+import {ServerError} from "../../api/createRequest.ts";
 
 export const Login = () => {
     const [email, setEmail] = useState('')
@@ -11,7 +12,7 @@ export const Login = () => {
     const navigate = useNavigate()
     const { authClient } = useAuthContext()
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             setError('');
@@ -23,11 +24,15 @@ export const Login = () => {
             console.log('res2: ', res2);
 
             navigate('/');
-        } catch (error) {
-            if (error.code === 400) {
-                setError('Неверный логин или пароль');
+        } catch (error: unknown) {
+            if (error instanceof ServerError) {
+                if (error.code === 400) {
+                    setError('Неверный логин или пароль');
+                } else {
+                    setError(error.message);
+                }
             } else {
-                setError(error.message);
+                console.error("Неизвестная ошибка");
             }
         }
     };

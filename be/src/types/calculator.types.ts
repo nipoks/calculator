@@ -3,3 +3,8 @@ export type ExpressionHistoryDTO = {
     id: string
     date: Date
 }
+
+export type ExpressionMemoryDTO = {
+    expression: string
+    memory: number | undefined
+}

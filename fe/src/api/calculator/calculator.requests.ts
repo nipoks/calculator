@@ -1,5 +1,11 @@
 import { createRequest } from '../createRequest'
-import {HistoryInput, AddNewExpressionInput, HistoryItem} from "./calculator.types.ts";
+import {
+    HistoryInput,
+    AddNewExpressionInput,
+    HistoryItem,
+    ExpressionMemoryOutput,
+    MemoryInput
+} from "./calculator.types.ts";
 
 const backendUrlPrefix = import.meta.env.VITE_BACKEND_URL
 
@@ -19,8 +25,8 @@ export async function addNewExpressionToHistory(data: AddNewExpressionInput): Pr
     })
 }
 
-export async function getExpression(data: HistoryInput): Promise<string> {
-    return createRequest<string>({
+export async function getExpressionAndMemory(data: HistoryInput): Promise<ExpressionMemoryOutput> {
+    return createRequest<ExpressionMemoryOutput>({
         url: `${backendUrlPrefix}/api/calculator/expression/${data.userId}`,
         isProtectRequest: true,
     })
@@ -30,7 +36,16 @@ export async function updateCurUserExpression(data: AddNewExpressionInput): Prom
     return createRequest<void>({
         url: `${backendUrlPrefix}/api/calculator/expression`,
         isProtectRequest: true,
-        method: "POST",
+        method: "PUT",
+        data: data,
+    })
+}
+
+export async function updateUserMemory(data: MemoryInput): Promise<void> {
+    return createRequest<void>({
+        url: `${backendUrlPrefix}/api/calculator/memory`,
+        isProtectRequest: true,
+        method: "PUT",
         data: data,
     })
 }

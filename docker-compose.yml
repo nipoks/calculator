@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mongo:
-    image: mongo:latest
+    image: mongo:6.0
     container_name: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
@@ -13,6 +13,7 @@ services:
       - mongo_data:/data/db
     networks:
       - mongo_network
+    restart: always
 
   mongo-express:
     image: mongo-express:latest
@@ -27,6 +28,7 @@ services:
       - mongo
     networks:
       - mongo_network
+    restart: always
 
   backend:
     build:
@@ -35,10 +37,13 @@ services:
     container_name: node-backend
     ports:
       - "4000:4000"
+    environment:
+      - NODE_ENV=production
     depends_on:
       - mongo
     networks:
       - mongo_network
+    restart: always
 
   frontend:
     build:
@@ -46,9 +51,12 @@ services:
       dockerfile: Dockerfile
     container_name: react-frontend
     ports:
-      - "2000:2000"
+      - "80:80"
     networks:
       - mongo_network
+    depends_on:
+      - backend
+    restart: always
 
 volumes:
   mongo_data:

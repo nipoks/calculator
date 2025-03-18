@@ -12,3 +12,13 @@ export type AddNewExpressionInput = {
     userId: string
     expression: string
 }
+
+export type MemoryInput = {
+    userId: string
+    memory: number | undefined
+}
+
+export type ExpressionMemoryOutput = {
+    expression: string
+    memory: number
+}

@@ -5,9 +5,9 @@ import {useAuthContext} from "../../context/authContext/authContext.ts";
 import {useNavigate} from "react-router-dom";
 import {
     addNewExpressionToHistory,
-    getExpression,
+    getExpressionAndMemory,
     getHistory,
-    updateCurUserExpression
+    updateCurUserExpression, updateUserMemory
 } from "../../api/calculator/calculator.requests.ts";
 import {HistoryItem} from "../../api/calculator/calculator.types.ts";
 
@@ -45,12 +45,13 @@ export const Calculator = () => {
                 console.log("No history found or wrong format");
             }
 
-            const resExpression = await getExpression({
+            const res = await getExpressionAndMemory({
                 userId: authState!.id,
             })
-            console.log(resExpression)
-            if (resExpression) {
-                setExpression(resExpression)
+            console.log(res)
+            if (res) {
+                setExpression(res.expression)
+                setMemoryNumber(res.memory)
             }
             setIsLoading(false)
         }
@@ -59,6 +60,7 @@ export const Calculator = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            console.log('63 строка', expression)
             try {
                 await updateCurUserExpression({
                     userId: authState!.id,
@@ -142,9 +144,13 @@ export const Calculator = () => {
     }
 
     const handlerExpressionIsErrorOrDBZ = (value: string) => {
+        console.log("146 строка", expression, value)
+
         if (value !== "=") {
             if (!isNaN(Number(value))) {
                 setExpression(value)
+                console.log("151 строка", expression, value)
+
             }
             if (value === "C") {
                 setExpression("0")
@@ -154,21 +160,44 @@ export const Calculator = () => {
     }
 
     const memoryActions:{ [key: string]: () => void } = {
-        "ms": () => {
+        "ms": async () => {
             if (!isNaN(Number(expression))) {
                 setMemoryNumber(Number(expression))
+                await updateUserMemory({
+                    memory: Number(expression),
+                    userId: authState!.id,
+                })
             }
         },
-        "mr": () => setExpression(memoryNumber !== undefined ? memoryNumber.toString() : "0"),
-        "mc": () => setMemoryNumber(undefined),
-        "m-": () => {
+        "mr": () => {
+            console.log("170 строка", memoryNumber)
+            setExpression(memoryNumber !== undefined ? memoryNumber.toString() : "0")
+        },
+        "mc": async () => {
+            setMemoryNumber(undefined)
+            await updateUserMemory({
+                memory: undefined,
+                userId: authState!.id,
+            })
+        },
+        "m-": async () => {
             if (!isNaN(Number(expression)) && memoryNumber !== undefined) {
-                setMemoryNumber(prevState => prevState! - Number(expression))
+                const newMemoryNumber = memoryNumber - Number(expression)
+                setMemoryNumber(newMemoryNumber)
+                await updateUserMemory({
+                    memory: newMemoryNumber,
+                    userId: authState!.id,
+                })
             }
         },
-        "m+": () => {
+        "m+": async () => {
             if (!isNaN(Number(expression)) && memoryNumber !== undefined) {
-                setMemoryNumber(prevState => prevState! + Number(expression))
+                const newMemoryNumber = memoryNumber + Number(expression)
+                setMemoryNumber(newMemoryNumber)
+                await updateUserMemory({
+                    memory: newMemoryNumber,
+                    userId: authState!.id,
+                })
             }
         },
         "C": () => setExpression("0"),
@@ -179,8 +208,10 @@ export const Calculator = () => {
     }
 
     const handleButtonClick = async (value: string) => {
+        console.log("206 строка", expression)
         if (expression === "Error" || expression === "DivisionByZero") {
             handlerExpressionIsErrorOrDBZ(value)
+            return
         }
 
         if (!isNaN(Number(value))) {

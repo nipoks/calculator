@@ -4,7 +4,7 @@ import HistoryExpression from "../models/HistoryExpression"
 
 export const initUsers = async ():Promise<IUser[]> => {
     const users = [
-        { email: "first@example.com", password: "12", curExpression: "65+10-5", memoryNumber: "10" },
+        { email: "first@example.com", password: "12", curExpression: "65+10-5", memoryNumber: 10 },
         { email: "second@example.com", password: "13", curExpression: "0", memoryNumber: undefined }
     ]
 

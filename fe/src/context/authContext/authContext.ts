@@ -26,9 +26,7 @@ const useAuthContext = (): { authClient: AuthClient; authState?: AuthState } => 
     const [state, setState] = container.useTracked()
 
     const updateState = (output: LoginOutput) => {
-        console.log(output)
         const decode = jwtDecode(output.accessToken) as AccessJwtPayload
-        console.log(decode)
         const newState: AuthState = {
             accessToken: output.accessToken,
             id: decode.userId || '',
