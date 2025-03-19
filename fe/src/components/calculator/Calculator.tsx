@@ -120,14 +120,12 @@ export const Calculator = () => {
             if (resultWithFourDecimalPlaces.toString() === "Infinity") {
                 resultWithFourDecimalPlaces = "DivisionByZero"
             }
-            console.log(resultWithFourDecimalPlaces)
             const newEntry = `${expression} = ${resultWithFourDecimalPlaces}`
             try {
                 const res = await addNewExpressionToHistory({
                     userId: authState!.id,
                     expression: newEntry,
                 })
-                console.log("New record added:", res)
 
                 setHistoryExpression(prevState => prevState ? [res, ...prevState] : [res])
             } catch (err) {
