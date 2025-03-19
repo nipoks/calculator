@@ -81,7 +81,6 @@ export const initDatabase = async () => {
         const savedUsers = await initUsers()
         await initHistoryExpression(savedUsers)
 
-        console.log("Данные добавлены")
     } catch (error) {
         console.log("Ошибка при инициализации базы:", error)
     }
