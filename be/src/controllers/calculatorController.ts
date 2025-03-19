@@ -7,7 +7,6 @@ export const getHistoryExpressionByUser = async (req: Request, res: Response): P
     try {
         const { userId } = req.params
         const history = await HistoryExpression.find({ userId }).sort({ date: -1 })
-        
 
         res.json(mapUsersToUsersDTO(history))
     } catch (error) {

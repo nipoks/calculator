@@ -34,7 +34,7 @@ export const AuthInterceptor: FC<WithChildren> = ({ children }) => {
             }
             return config
         })
-    }, [authClient, navigate])
+    }, [authState, authClient, navigate])
 
     return <>{children}</>
 }

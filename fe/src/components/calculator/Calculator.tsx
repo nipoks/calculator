@@ -48,7 +48,6 @@ export const Calculator = () => {
             const res = await getExpressionAndMemory({
                 userId: authState!.id,
             })
-            console.log(res)
             if (res) {
                 setExpression(res.expression)
                 setMemoryNumber(res.memory)
@@ -60,7 +59,6 @@ export const Calculator = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log('63 строка', expression)
             try {
                 await updateCurUserExpression({
                     userId: authState!.id,
@@ -144,13 +142,9 @@ export const Calculator = () => {
     }
 
     const handlerExpressionIsErrorOrDBZ = (value: string) => {
-        console.log("146 строка", expression, value)
-
         if (value !== "=") {
             if (!isNaN(Number(value))) {
                 setExpression(value)
-                console.log("151 строка", expression, value)
-
             }
             if (value === "C") {
                 setExpression("0")
@@ -170,7 +164,6 @@ export const Calculator = () => {
             }
         },
         "mr": () => {
-            console.log("170 строка", memoryNumber)
             setExpression(memoryNumber !== undefined ? memoryNumber.toString() : "0")
         },
         "mc": async () => {
@@ -208,7 +201,6 @@ export const Calculator = () => {
     }
 
     const handleButtonClick = async (value: string) => {
-        console.log("206 строка", expression)
         if (expression === "Error" || expression === "DivisionByZero") {
             handlerExpressionIsErrorOrDBZ(value)
             return

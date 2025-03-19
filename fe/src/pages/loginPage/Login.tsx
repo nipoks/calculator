@@ -17,11 +17,10 @@ export const Login = () => {
         try {
             setError('');
 
-            const res2 = await authClient.login({
+            await authClient.login({
                 email: email,
                 password: password,
             });
-            console.log('res2: ', res2);
 
             navigate('/');
         } catch (error: unknown) {

@@ -58,14 +58,11 @@ const useAuthContext = (): { authClient: AuthClient; authState?: AuthState } => 
 
 
         refresh: async () => {
-            console.log('111111')
             const output = await createRequest<LoginOutput>({
                 url: `${backendUrlPrefix}/api/auth/refresh`,
                 method: 'POST',
                 data: { accessToken: state?.accessToken },
             })
-            console.log(output)
-
             updateState(output)
             return output
         },
