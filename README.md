@@ -46,3 +46,7 @@ email: first@example.com, password: 12
 
 email: second@example.com, password: 13
 ```
+5. Приложение:
+
+### Фронт по адресу: http://localhost:80/
+### UI Mongo: http://localhost:8081/

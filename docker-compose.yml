@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongo:
     image: mongo:6.0
@@ -14,6 +12,11 @@ services:
     networks:
       - mongo_network
     restart: always
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh admin -u admin -p pass --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo-express:
     image: mongo-express:latest
@@ -25,7 +28,8 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - mongo_network
     restart: always
@@ -40,7 +44,8 @@ services:
     environment:
       - NODE_ENV=production
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
       - mongo_network
     restart: always
